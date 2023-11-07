@@ -1,0 +1,33 @@
+import pygame as pg 
+
+print('test')
+
+pg.init()
+
+colors,screenwidth,screenheight,clockfrequency=((255,255,255),400,300,pg.time.Clock())
+black = (0, 0, 0) 
+taillerec=20
+
+screen = pg.display.set_mode( (screenwidth, screenheight) )
+Flag=True
+while Flag==True:
+    screen.fill( colors )
+    black = (0, 0, 0) 
+    taillerec=20
+    for left in [k for k in range(0,screenwidth,2*taillerec)]:
+        for top in [k for k in range(0,screenheight,2*taillerec)]:
+            rect = pg.Rect(left,top,taillerec, taillerec)
+            pg.draw.rect(screen, black, rect)
+    for left in [k for k in range(taillerec,screenwidth,2*taillerec)]:
+        for top in [k for k in range(taillerec,screenheight,2*taillerec)]:
+           rect = pg.Rect(left,top,taillerec, taillerec)
+           pg.draw.rect(screen, black, rect)
+
+    for event in pg.event.get():
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_q:
+                Flag=False
+    pg.display.update()
+
+print(0)
+
