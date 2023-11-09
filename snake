@@ -29,5 +29,6 @@ while Flag==True:
                 Flag=False
     pg.display.update()
 
+pg.quit()
 print(0)
 
