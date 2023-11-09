@@ -31,7 +31,6 @@ while Flag==True:
     pg.draw.rect(screen, (0,255,0), snake)
 
     for event in pg.event.get():
-        vectdir=(0,1)
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_q:
                 Flag=False
