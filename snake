@@ -30,6 +30,8 @@ for i in range(3):
     snakecor.append((4*taillerec+i*taillerec,10*taillerec))
 vectdir=(1,0)
 
+fruit=(3*taillerec,3*taillerec)
+
 while Flag==True:
     clock.tick(5)
 
@@ -53,8 +55,17 @@ while Flag==True:
         if event.type == pg.QUIT:
             Flag=False
 
+
     snakecor.append((snakecor[-1][0]+taillerec*vectdir[0],snakecor[-1][1]+taillerec*vectdir[1]))
     snakecor.pop(0)
+
+    if snakecor[-1]==fruit:
+        if fruit==(3*taillerec,3*taillerec):
+            fruit=(15*taillerec,10*taillerec)
+            snakecor=[snakecor[0]]+snakecor
+        else:
+            fruit=(3*taillerec,3*taillerec)
+            snakecor=[snakecor[0]]+snakecor
     
     screen.fill( colors )
   
@@ -66,6 +77,9 @@ while Flag==True:
         for top in [k for k in range(taillerec,screenheight,2*taillerec)]:
             rect = pg.Rect(left,top,taillerec, taillerec)
             pg.draw.rect(screen, black, rect)
+
+    fruitrec = pg.Rect(fruit[0],fruit[1],taillerec, taillerec)
+    pg.draw.rect(screen, (255,0,0), fruitrec)
 
         
     for i in range(len(snakecor)):
