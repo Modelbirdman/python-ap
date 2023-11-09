@@ -1,6 +1,6 @@
 import pygame as pg 
 
-print('test')
+print('test') #verifie que le programme est lancé
 
 pg.init()
 
@@ -32,7 +32,6 @@ vectdir=(1,0)
 
 while Flag==True:
     clock.tick(5)
-
 
     for event in pg.event.get():
         if event.type == pg.KEYDOWN:
