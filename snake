@@ -23,12 +23,35 @@ while Flag==True:
            rect = pg.Rect(left,top,taillerec, taillerec)
            pg.draw.rect(screen, black, rect)
 
+    snakecor=[5*taillerec,10*taillerec,3*taillerec,1*taillerec]
+    snake=pg.Rect(snakecor[0],snakecor[1],snakecor[2],snakecor[3])
+    pg.draw.rect(screen, (0,255,0), snake)
+    vectdir=(0,1)
+
     for event in pg.event.get():
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_UP:
+                vectdir=(1,0)
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_DOWN:
+                vectdir=(-1,0)
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_LEFT:
+                vectdir=(0,-1)
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_RIGHT:
+                vectdir=(0,1)
+        
+        
+
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_q:
                 Flag=False
+        if event.type == pg.QUIT:
+            Flag=False
     pg.display.update()
 
-pg.quit()
 print(0)
+quit()
+
 
