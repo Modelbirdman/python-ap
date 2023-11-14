@@ -6,6 +6,7 @@ pg.init()
 
 clock = pg.time.Clock()
 
+#Définition des arguments
 parser = argparse.ArgumentParser(description='Arguements du jeu snake')
 parser.add_argument('--bg-color-1', help="La première couleur du quadrillage",default=(255,255,255))
 parser.add_argument('--bg-color-2', help="La deuxième couleur du quadrillage",default=(0,0,0))
@@ -16,9 +17,24 @@ parser.add_argument('--fruit-color', help="La couleur du fruit",default=(255,0,0
 parser.add_argument('--snake-color', help="La couleur du serpent",default=(0,255,0))
 parser.add_argument('--snake-length', type=int, help="Taille du snake",default=3)
 parser.add_argument('--tile-size', type=int, help="Taille du carreau",default=20)
-args = parser.parse_args()
-print(args)
 
+parser.add_argument('--gameover-on-exit', help='A flag.', action='store_true')
+args = parser.parse_args()
+
+#Test des arguments
+
+if args.snake_length < 2:
+    raise ValueError("La taille du snake doit etre strictement superieure à 1")
+if args.snake_color==args.fruit_color:
+    raise ValueError("Le fruit et le snake doivent avoir des couleurs differentes")
+if args.width%args.tile_size!=0:
+    raise ValueError("La longueur doit etre un multiple de la taille des carres")
+if args.height%args.tile_size!=0:
+    raise ValueError("La hauteur doit etre un multiple de la taille des carres")
+if args.width/args.tile_size<20:
+    raise ValueError("La longueur est minimum de 20 colonnes")
+if args.height/args.tile_size<12:
+    raise ValueError("La hauteur est minimum de 12 lignes")
 
 #Initialisation des variables à partir des arguments
 colors,screenwidth,screenheight,clockfrequency=(args.bg_color_1,args.width,args.height,pg.time.Clock())
@@ -96,6 +112,27 @@ while Flag==True:
         else:
             fruit=(3*taillerec,3*taillerec)
             snakecor=[snakecor[0]]+snakecor
+
+    if args.gameover_on_exit:
+        if snakecor[-1][0]==screenwidth and vectdir==(1,0):
+            Flag=False
+        if snakecor[-1][0]==0 and vectdir==(-1,0):
+            Flag=False
+        if snakecor[-1][1]==screenheight and vectdir==(0,1):
+            Flag=False
+        if snakecor[-1][1]==0 and vectdir==(0,-1):
+            Flag=False
+    
+    else:
+        if snakecor[-1][0]==screenwidth and vectdir==(1,0):
+            snakecor[-1]=[0,snakecor[-1][1]]
+        if snakecor[-1][0]==-taillerec and vectdir==(-1,0):
+            snakecor[-1]=[screenwidth,snakecor[-1][1]]
+        if snakecor[-1][1]==screenheight and vectdir==(0,1):
+            snakecor[-1]=[snakecor[-1][0],0]
+        if snakecor[-1][1]==-taillerec and vectdir==(0,-1):
+            snakecor[-1]=[snakecor[-1][0],screenheight]
+
 
     #Mise à jour du quadrillage
     screen.fill( colors )
