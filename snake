@@ -20,7 +20,7 @@ args = parser.parse_args()
 print(args)
 
 
-#Initialisation des constantes
+#Initialisation des variables à partir des arguments
 colors,screenwidth,screenheight,clockfrequency=(args.bg_color_1,args.width,args.height,pg.time.Clock())
 fps=args.fps
 black =args.bg_color_2
