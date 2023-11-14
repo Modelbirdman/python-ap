@@ -1,13 +1,14 @@
 import pygame as pg 
 
-print('test') #verifie que le programme est lancé
-
+#Démarrage de la partie
 pg.init()
 
 clock = pg.time.Clock()
 
+#Initialisation des constantes
+
 colors,screenwidth,screenheight,clockfrequency=((255,255,255),400,300,pg.time.Clock())
-black = (0, 0, 0) #initialisation des constantes
+black = (0, 0, 0) 
 taillerec=20
 score=0
 pg.display.set_caption("Score: "+str(score))
@@ -15,9 +16,10 @@ pg.display.set_caption("Score: "+str(score))
 screen = pg.display.set_mode( (screenwidth, screenheight) )
 Flag=True
 
+#Création du quadrillage
 screen.fill( colors )
 
-for left in [k for k in range(0,screenwidth,2*taillerec)]: #création du quadrillage
+for left in [k for k in range(0,screenwidth,2*taillerec)]: 
     for top in [k for k in range(0,screenheight,2*taillerec)]:
         rect = pg.Rect(left,top,taillerec, taillerec)
         pg.draw.rect(screen, black, rect)
@@ -26,7 +28,8 @@ for left in [k for k in range(taillerec,screenwidth,2*taillerec)]:
         rect = pg.Rect(left,top,taillerec, taillerec)
         pg.draw.rect(screen, black, rect)
 
-snakecor=[] #création du snake et du fruit
+#Création du snake et du fruit
+snakecor=[] 
 for i in range(3):
     snakecor.append((4*taillerec+i*taillerec,10*taillerec))
 vectdir=(1,0)
@@ -36,8 +39,12 @@ fruit=(3*taillerec,3*taillerec)
 while Flag==True:
     clock.tick(5)
 
+
+
     for event in pg.event.get():
-        if event.type == pg.KEYDOWN: #événements pour faire bouger le serpent
+
+        #Evénements pour faire bouger le serpent
+        if event.type == pg.KEYDOWN: 
             if event.key == pg.K_UP:
                 vectdir=(0,-1)
         if event.type == pg.KEYDOWN:
@@ -49,18 +56,20 @@ while Flag==True:
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_RIGHT:
                 vectdir=(1,0)
-
-        if event.type == pg.KEYDOWN: #évenements pour quitter
+        
+        #Evenements pour quitter
+        if event.type == pg.KEYDOWN: 
             if event.key == pg.K_q:
                 Flag=False
         if event.type == pg.QUIT:
             Flag=False
 
-
+    #Mise à jour du serpent
     snakecor.append((snakecor[-1][0]+taillerec*vectdir[0],snakecor[-1][1]+taillerec*vectdir[1]))
-    snakecor.pop(0) #mise à jour du serpent
+    snakecor.pop(0) 
 
-    if snakecor[-1]==fruit:#si le serpent touche le fruit
+    #Si le serpent touche le fruit
+    if snakecor[-1]==fruit:
         score=score+1
         pg.display.set_caption("Score: "+str(score))
         if fruit==(3*taillerec,3*taillerec):
@@ -69,10 +78,11 @@ while Flag==True:
         else:
             fruit=(3*taillerec,3*taillerec)
             snakecor=[snakecor[0]]+snakecor
-    
+
+    #Mise à jour du quadrillage
     screen.fill( colors )
   
-    for left in [k for k in range(0,screenwidth,2*taillerec)]: #mise à jour du quadrillage
+    for left in [k for k in range(0,screenwidth,2*taillerec)]: 
         for top in [k for k in range(0,screenheight,2*taillerec)]:
             rect = pg.Rect(left,top,taillerec, taillerec)
             pg.draw.rect(screen, black, rect)
@@ -90,7 +100,6 @@ while Flag==True:
         pg.draw.rect(screen,(0,255,0),draw)
     pg.display.update()
 
-print(0)
 quit()
 
 
