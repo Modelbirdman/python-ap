@@ -1,20 +1,39 @@
 import pygame as pg 
+import argparse
 
 #Démarrage de la partie
 pg.init()
 
 clock = pg.time.Clock()
 
-#Initialisation des constantes
+parser = argparse.ArgumentParser(description='Arguements du jeu snake')
+parser.add_argument('--bg-color-1', help="La première couleur du quadrillage",default=(255,255,255))
+parser.add_argument('--bg-color-2', help="La deuxième couleur du quadrillage",default=(0,0,0))
+parser.add_argument('--width', type=int, help="Longueur du quadrillage",default=400)
+parser.add_argument('--height', type=int, help="Hauteur du quadrillage",default=300)
+parser.add_argument('--fps', type=int, help="Nombre de frames par seconde",default=5)
+parser.add_argument('--fruit-color', help="La couleur du fruit",default=(255,0,0))
+parser.add_argument('--snake-color', help="La couleur du serpent",default=(0,255,0))
+parser.add_argument('--snake-length', type=int, help="Taille du snake",default=3)
+parser.add_argument('--tile-size', type=int, help="Taille du carreau",default=20)
+args = parser.parse_args()
+print(args)
 
-colors,screenwidth,screenheight,clockfrequency=((255,255,255),400,300,pg.time.Clock())
-black = (0, 0, 0) 
-taillerec=20
+
+#Initialisation des constantes
+colors,screenwidth,screenheight,clockfrequency=(args.bg_color_1,args.width,args.height,pg.time.Clock())
+fps=args.fps
+black =args.bg_color_2
+red=args.fruit_color
+green=args.snake_color
+snakelen=args.snake_length
+taillerec=args.tile_size
 score=0
 pg.display.set_caption("Score: "+str(score))
 
 screen = pg.display.set_mode( (screenwidth, screenheight) )
 Flag=True
+
 
 #Création du quadrillage
 screen.fill( colors )
@@ -30,15 +49,14 @@ for left in [k for k in range(taillerec,screenwidth,2*taillerec)]:
 
 #Création du snake et du fruit
 snakecor=[] 
-for i in range(3):
+for i in range(snakelen):
     snakecor.append((4*taillerec+i*taillerec,10*taillerec))
 vectdir=(1,0)
 
 fruit=(3*taillerec,3*taillerec)
 
 while Flag==True:
-    clock.tick(5)
-
+    clock.tick(fps)
 
 
     for event in pg.event.get():
@@ -92,12 +110,12 @@ while Flag==True:
             pg.draw.rect(screen, black, rect)
 
     fruitrec = pg.Rect(fruit[0],fruit[1],taillerec, taillerec)
-    pg.draw.rect(screen, (255,0,0), fruitrec)
+    pg.draw.rect(screen,red, fruitrec)
 
         
     for i in range(len(snakecor)):
         draw=pg.Rect(snakecor[i][0],snakecor[i][1],taillerec,taillerec)
-        pg.draw.rect(screen,(0,255,0),draw)
+        pg.draw.rect(screen,green,draw)
     pg.display.update()
 
 quit()
