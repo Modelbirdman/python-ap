@@ -1,5 +1,8 @@
 import pygame as pg 
 import argparse
+import sys
+import logging 
+
 
 #Démarrage de la partie
 pg.init()
@@ -19,6 +22,7 @@ parser.add_argument('--snake-length', type=int, help="Taille du snake",default=3
 parser.add_argument('--tile-size', type=int, help="Taille du carreau",default=20)
 
 parser.add_argument('--gameover-on-exit', help='A flag.', action='store_true')
+parser.add_argument('-g--debug',help='Debug mode', action='store_true')
 args = parser.parse_args()
 
 #Test des arguments
@@ -45,13 +49,26 @@ green=args.snake_color
 snakelen=args.snake_length
 taillerec=args.tile_size
 score=0
+testfruit=False #variable définissant les passages de boucle où le serpent a mangé le fruit
 pg.display.set_caption("Score: "+str(score))
 
 screen = pg.display.set_mode( (screenwidth, screenheight) )
 Flag=True
 
+#Console pour afficher les logs
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stderr)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+if args.g__debug:
+    logger.setLevel(logging.DEBUG)
+
+logger.debug('Start main loop.')
+
 
 #Création du quadrillage
+logger.info('Pour jouer en mode debug, ajouter l argument -g--debug lors du lancement du jeu')
+logger.info('New game')
 screen.fill( colors )
 
 for left in [k for k in range(0,screenwidth,2*taillerec)]: 
@@ -95,8 +112,12 @@ while Flag==True:
         if event.type == pg.KEYDOWN: 
             if event.key == pg.K_q:
                 Flag=False
+                logger.critical('You quit the game')
+                logger.debug('Game over')
         if event.type == pg.QUIT:
             Flag=False
+            logger.critical('You quit the game')
+            logger.debug('Game over')
 
     #Mise à jour du serpent
     snakecor.append((snakecor[-1][0]+taillerec*vectdir[0],snakecor[-1][1]+taillerec*vectdir[1]))
@@ -105,6 +126,7 @@ while Flag==True:
     #Si le serpent touche le fruit
     if snakecor[-1]==fruit:
         score=score+1
+        testfruit=True
         pg.display.set_caption("Score: "+str(score))
         if fruit==(3*taillerec,3*taillerec):
             fruit=(15*taillerec,10*taillerec)
@@ -112,17 +134,41 @@ while Flag==True:
         else:
             fruit=(3*taillerec,3*taillerec)
             snakecor=[snakecor[0]]+snakecor
+        logger.info('Your score is '+str(score))
+        logger.debug('Snake has eaten a fruit')
 
+    #Si le snake se touche lui-même
+    for i in range(len(snakecor)-1):
+        for j in range(i+1,len(snakecor)):
+            if snakecor[i]==snakecor[j] and testfruit==False:
+                Flag=False
+                logger.critical('The snake touched itself')
+        
+    
+    
+
+    #Détection des extrémités 
+    #Si le mode Gameover quand contact avec l'extrémité est activé
     if args.gameover_on_exit:
         if snakecor[-1][0]==screenwidth and vectdir==(1,0):
             Flag=False
+            logger.error('You hit the end of the map')
+            logger.debug('Game over')
         if snakecor[-1][0]==0 and vectdir==(-1,0):
             Flag=False
+            logger.error('You hit the end of the map')
+            logger.debug('Game over')
         if snakecor[-1][1]==screenheight and vectdir==(0,1):
             Flag=False
+            logger.error('You hit the end of the map')
+            logger.debug('Game over')
         if snakecor[-1][1]==0 and vectdir==(0,-1):
             Flag=False
-    
+            logger.error('You hit the end of the map')
+            logger.debug('Game over')
+        
+
+    #Si le mode Gameover quand contact avec l'extrémité n'est pas activé
     else:
         if snakecor[-1][0]==screenwidth and vectdir==(1,0):
             snakecor[-1]=[0,snakecor[-1][1]]
@@ -133,6 +179,8 @@ while Flag==True:
         if snakecor[-1][1]==-taillerec and vectdir==(0,-1):
             snakecor[-1]=[snakecor[-1][0],screenheight]
 
+    #Fin du passage de la boucle où le serpent a mangé le fruitq
+    testfruit=False
 
     #Mise à jour du quadrillage
     screen.fill( colors )
