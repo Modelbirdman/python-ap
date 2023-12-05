@@ -4,96 +4,96 @@ import sys
 import logging 
 
 
-#Démarrage de la partie
-pg.init()
+#Fonction d'ajout et test des arguments
+def read_args():
+   
+   #Ajout des arguments
+   parser = argparse.ArgumentParser(description='Arguements du jeu snake')
+   parser.add_argument('--bg-color-1', help="La première couleur du quadrillage",default=(255,255,255))
+   parser.add_argument('--bg-color-2', help="La deuxième couleur du quadrillage",default=(0,0,0))
+   parser.add_argument('--width', type=int, help="Longueur du quadrillage",default=400)
+   parser.add_argument('--height', type=int, help="Hauteur du quadrillage",default=300)
+   parser.add_argument('--fps', type=int, help="Nombre de frames par seconde",default=5)
+   parser.add_argument('--fruit-color', help="La couleur du fruit",default=(255,0,0))
+   parser.add_argument('--snake-color', help="La couleur du serpent",default=(0,255,0))
+   parser.add_argument('--snake-length', type=int, help="Taille du snake",default=3)
+   parser.add_argument('--tile-size', type=int, help="Taille du carreau",default=20)
 
-clock = pg.time.Clock()
+   parser.add_argument('--gameover-on-exit', help='A flag.', action='store_true')
+   parser.add_argument('-g--debug',help='Debug mode', action='store_true')
 
-#Définition des arguments
-parser = argparse.ArgumentParser(description='Arguements du jeu snake')
-parser.add_argument('--bg-color-1', help="La première couleur du quadrillage",default=(255,255,255))
-parser.add_argument('--bg-color-2', help="La deuxième couleur du quadrillage",default=(0,0,0))
-parser.add_argument('--width', type=int, help="Longueur du quadrillage",default=400)
-parser.add_argument('--height', type=int, help="Hauteur du quadrillage",default=300)
-parser.add_argument('--fps', type=int, help="Nombre de frames par seconde",default=5)
-parser.add_argument('--fruit-color', help="La couleur du fruit",default=(255,0,0))
-parser.add_argument('--snake-color', help="La couleur du serpent",default=(0,255,0))
-parser.add_argument('--snake-length', type=int, help="Taille du snake",default=3)
-parser.add_argument('--tile-size', type=int, help="Taille du carreau",default=20)
+   args = parser.parse_args()
 
-parser.add_argument('--gameover-on-exit', help='A flag.', action='store_true')
-parser.add_argument('-g--debug',help='Debug mode', action='store_true')
-args = parser.parse_args()
+   #Test des arguments
 
-#Test des arguments
-
-if args.snake_length < 2:
-    raise ValueError("La taille du snake doit etre strictement superieure à 1")
-if args.snake_color==args.fruit_color:
-    raise ValueError("Le fruit et le snake doivent avoir des couleurs differentes")
-if args.width%args.tile_size!=0:
-    raise ValueError("La longueur doit etre un multiple de la taille des carres")
-if args.height%args.tile_size!=0:
-    raise ValueError("La hauteur doit etre un multiple de la taille des carres")
-if args.width/args.tile_size<20:
-    raise ValueError("La longueur est minimum de 20 colonnes")
-if args.height/args.tile_size<12:
-    raise ValueError("La hauteur est minimum de 12 lignes")
-
-#Initialisation des variables à partir des arguments
-colors,screenwidth,screenheight,clockfrequency=(args.bg_color_1,args.width,args.height,pg.time.Clock())
-fps=args.fps
-black =args.bg_color_2
-red=args.fruit_color
-green=args.snake_color
-snakelen=args.snake_length
-taillerec=args.tile_size
-score=0
-testfruit=False #variable définissant les passages de boucle où le serpent a mangé le fruit
-pg.display.set_caption("Score: "+str(score))
-
-screen = pg.display.set_mode( (screenwidth, screenheight) )
-Flag=True
-
-#Console pour afficher les logs
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler(sys.stderr)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-if args.g__debug:
-    logger.setLevel(logging.DEBUG)
-
-logger.debug('Start main loop.')
+   if args.snake_length < 2:
+       raise ValueError("La taille du snake doit etre strictement superieure à 1")
+   if args.snake_color==args.fruit_color:
+       raise ValueError("Le fruit et le snake doivent avoir des couleurs differentes")
+   if args.width%args.tile_size!=0:
+       raise ValueError("La longueur doit etre un multiple de la taille des carres")
+   if args.height%args.tile_size!=0:
+       raise ValueError("La hauteur doit etre un multiple de la taille des carres")
+   if args.width/args.tile_size<20:
+       raise ValueError("La longueur est minimum de 20 colonnes")
+   if args.height/args.tile_size<12:
+       raise ValueError("La hauteur est minimum de 12 lignes")
+   
+   return(args)
 
 
-#Création du quadrillage
-logger.info('Pour jouer en mode debug, ajouter l argument -g--debug lors du lancement du jeu')
-logger.info('New game')
-screen.fill( colors )
+def main():
+    #Démarrage de la partie
+    pg.init()
 
-for left in [k for k in range(0,screenwidth,2*taillerec)]: 
-    for top in [k for k in range(0,screenheight,2*taillerec)]:
-        rect = pg.Rect(left,top,taillerec, taillerec)
-        pg.draw.rect(screen, black, rect)
-for left in [k for k in range(taillerec,screenwidth,2*taillerec)]:
-    for top in [k for k in range(taillerec,screenheight,2*taillerec)]:
-        rect = pg.Rect(left,top,taillerec, taillerec)
-        pg.draw.rect(screen, black, rect)
+    clock = pg.time.Clock()
 
-#Création du snake et du fruit
-snakecor=[] 
-for i in range(snakelen):
-    snakecor.append((4*taillerec+i*taillerec,10*taillerec))
-vectdir=(1,0)
+    args=read_args()
 
-fruit=(3*taillerec,3*taillerec)
+    #Console pour afficher les logs
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler(sys.stderr)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    if args.g__debug:
+        logger.setLevel(logging.DEBUG)
 
-while Flag==True:
-    clock.tick(fps)
+    logger.debug('Start main loop.')
 
+    logger.info('Pour jouer en mode debug, ajouter l argument -g--debug lors du lancement du jeu')
+    logger.info('New game')
 
-    for event in pg.event.get():
+    #Initialisation des variables à partir des arguments
+    colors,screenwidth,screenheight=(args.bg_color_1,args.width,args.height)
+    fps=args.fps
+    black =args.bg_color_2
+    red=args.fruit_color
+    green=args.snake_color
+    snakelen=args.snake_length
+    taillerec=args.tile_size
+    score=0
+    vectdir=(1,0)
+    Flag=True
+    testfruit=False #variable définissant les passages de boucle où le serpent a mangé le fruit
 
+    #Création du quadrillage
+    screen = pg.display.set_mode( (screenwidth, screenheight) )
+    screen.fill( colors )
+
+    #Création du snake et du fruit
+    snakecor=[] 
+    for i in range(snakelen):
+        snakecor.append((4*taillerec+i*taillerec,10*taillerec))
+
+    fruit=(3*taillerec,3*taillerec)
+
+    while Flag==True:
+       clock.tick(fps)
+       vectdir=process_events(vectdir)
+       update_display(snakecor,taillerec,vectdir,fruit,screen,colors,screenwidth,screenheight,black,red,green,score,testfruit,args)
+
+def process_events(vectdir):
+    for event in pg.event.get(vectdir):
         #Evénements pour faire bouger le serpent
         if event.type == pg.KEYDOWN: 
             if event.key == pg.K_UP:
@@ -119,13 +119,22 @@ while Flag==True:
             logger.critical('You quit the game')
             logger.debug('Game over')
 
+    return vectdir
+
+def move_snake(snakecor,taillerec,vectdir):
     #Mise à jour du serpent
     snakecor.append((snakecor[-1][0]+taillerec*vectdir[0],snakecor[-1][1]+taillerec*vectdir[1]))
-    snakecor.pop(0) 
+    snakecor.pop(0)
+
+def get_score(testfruit,score):
+    if testfruit==True:
+        score=score+1 
+        testfruit=False #variable définissant les passages de boucle où le serpent a mangé le fruit
+    pg.display.set_caption("Score: "+str(score))
 
     #Si le serpent touche le fruit
+def update_fruit(snakecor,fruit,score,taillerec,testfruit):
     if snakecor[-1]==fruit:
-        score=score+1
         testfruit=True
         pg.display.set_caption("Score: "+str(score))
         if fruit==(3*taillerec,3*taillerec):
@@ -146,7 +155,7 @@ while Flag==True:
         
     
     
-
+def touchside(args,snakecor,screenwidth,screenheight,vectdir,taillerec):
     #Détection des extrémités 
     #Si le mode Gameover quand contact avec l'extrémité est activé
     if args.gameover_on_exit:
@@ -179,10 +188,11 @@ while Flag==True:
         if snakecor[-1][1]==-taillerec and vectdir==(0,-1):
             snakecor[-1]=[snakecor[-1][0],screenheight]
 
-    #Fin du passage de la boucle où le serpent a mangé le fruitq
+    #Fin du passage de la boucle où le serpent a mangé le fruit
     testfruit=False
 
     #Mise à jour du quadrillage
+def draw_checkerboard(screen,colors,screenwidth,screenheight,taillerec,black):
     screen.fill( colors )
   
     for left in [k for k in range(0,screenwidth,2*taillerec)]: 
@@ -194,15 +204,30 @@ while Flag==True:
             rect = pg.Rect(left,top,taillerec, taillerec)
             pg.draw.rect(screen, black, rect)
 
+def draw_fruit(fruit,taillerec,screen,red):
     fruitrec = pg.Rect(fruit[0],fruit[1],taillerec, taillerec)
     pg.draw.rect(screen,red, fruitrec)
 
-        
+def draw_snake(snakecor,taillerec,screen,green):   
     for i in range(len(snakecor)):
         draw=pg.Rect(snakecor[i][0],snakecor[i][1],taillerec,taillerec)
         pg.draw.rect(screen,green,draw)
     pg.display.update()
 
+def draw(screen,colors,screenwidth,screenheight,taillerec,black,fruit,red,snakecor,green):
+    draw_checkerboard(screen,colors,screenwidth,screenheight,taillerec,black)
+    draw_fruit(fruit,taillerec,screen,red)
+    draw_snake(snakecor,taillerec,screen,green)
+
+def update_display(snakecor,taillerec,vectdir,fruit,screen,colors,screenwidth,screenheight,black,red,green,score,testfruit,args):
+    move_snake(snakecor,taillerec,vectdir)
+    update_fruit(snakecor,fruit,score,taillerec,testfruit)
+    draw(screen,colors,screenwidth,screenheight,taillerec,black,fruit,red,snakecor,green)
+    get_score(testfruit,score)
+    touchside(args,snakecor,screenwidth,screenheight,vectdir,taillerec)
+
+
+main()
 quit()
 
 
