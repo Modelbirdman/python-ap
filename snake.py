@@ -169,7 +169,7 @@ def touchside(args,snakecor,SCREENWIDTH,SCREENHEIGHT,vectdir,TAILLEREC,testfruit
     if args.gameover_on_exit:
         if snakecor[-1][0]==SCREENWIDTH and vectdir==(1,0):
             Flag=False
-            logger.error('You hit the end of the map')
+            logger.info('You hit the end of the map')
             logger.debug('Game over')
         if snakecor[-1][0]==0 and vectdir==(-1,0):
             Flag=False
