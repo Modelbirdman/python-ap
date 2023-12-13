@@ -2,6 +2,8 @@ import pygame as pg
 import argparse
 import sys
 import logging 
+from pathlib import Path
+import re as re
 
 
 #Fonction d'ajout et test des arguments
@@ -21,6 +23,9 @@ def read_args():
 
    parser.add_argument('--gameover-on-exit', help='A flag.', action='store_true')
    parser.add_argument('-g--debug',help='Debug mode', action='store_true')
+
+   parser.add_argument('--high-scores-file',help='le chemin d accès au fichier high-score',default=$str(Path.cwd()/.snake_scores.txt))
+   
 
    args = parser.parse_args()
 
@@ -94,6 +99,38 @@ def main():
        clock.tick(FPS)
        vectdir,Flag=process_events(logger,vectdir,Flag)
        Flag,score,fruit,snakecor=update_display(snakecor,TAILLEREC,vectdir,fruit,screen,COLORS,SCREENWIDTH,SCREENHEIGHT,BLACK,RED,GREEN,score,testfruit,args,logger,Flag)
+
+    pattern= "([a-zA-Z]+):([0-9]+)"
+    with open(args.high_scores_file,'r') as f:
+        fichier=[]
+        for line in f:
+            match=re.match(pattern,line)
+            fichier.append(match.groups())
+            
+    with open(args.high_scores_file,'w') as f:
+    if fichier==[] or  if len(fichier)<5:
+        nom = input()
+        print(nom+"="+str(score), file=f)
+    else:
+        min=score
+        nom=""
+        for ancienscore in fichier:
+            if ancienscore[1]<min:
+                min=ancienscore[1]
+                nom=ancienscore[0]
+        if min<score:
+            nom=input()
+            print(nom+"="+str(score), file=f)
+            
+
+
+
+
+        
+
+                    
+            
+
 
 #Fonction de la boucle des évènements
 def process_events(logger,vectdir,Flag):
