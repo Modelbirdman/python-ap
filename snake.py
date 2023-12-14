@@ -2,7 +2,6 @@ import pygame as pg
 import argparse
 import sys
 import logging 
-from pathlib import Path
 import re as re
 
 
@@ -24,7 +23,7 @@ def read_args():
    parser.add_argument('--gameover-on-exit', help='A flag.', action='store_true')
    parser.add_argument('-g--debug',help='Debug mode', action='store_true')
 
-   parser.add_argument('--high-scores-file',help='le chemin d accès au fichier high-score',default=str(Path.cwd()/".snake_scores.txt"))
+   parser.add_argument('--high-scores-file',help='le chemin d accès au fichier high-score',default=str($HOME/".snake_scores.txt"))
    
 
    args = parser.parse_args()
