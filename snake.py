@@ -41,6 +41,51 @@ def read_args():
    
    return(args)
 
+class Fruit:
+
+    def __init__(self, x, y):
+        self._x=x
+        self._y =y
+
+    def __repr__(self):
+        return f"({self._x:.2f} , {self._y:.2f})"
+    
+    def update(self,snakecor,score,TAILLEREC,testfruit,logger):
+        if snakecor[-1]==(self._x,self._y):
+            testfruit=True
+            pg.display.set_caption("Score: "+str(score))
+            if (self._x,self._y)==(3*TAILLEREC,3*TAILLEREC):
+                self._x,self._y=15*TAILLEREC,10*TAILLEREC
+                snakecor=[snakecor[0]]+snakecor
+            else:
+                self._x,self._y=3*TAILLEREC,3*TAILLEREC
+                snakecor=[snakecor[0]]+snakecor
+            logger.info('Your score is '+str(score))
+            logger.debug('Snake has eaten a fruit')
+        return testfruit,snakecor
+    
+    def draw(self,TAILLEREC,screen,RED):
+        fruitrec = pg.Rect(self._x,self._y,TAILLEREC, TAILLEREC)
+        pg.draw.rect(screen,RED, fruitrec)
+
+class Snake:
+
+    def __init__(self, snakecor):
+        self._snakecor=snakecor
+
+    def __repr__(self):
+        return f"{self.snakecor}"
+    
+    #Fonction de Mise à jour du serpent
+    def move(self,TAILLEREC,vectdir):
+        self._snakecor.append((self._snakecor[-1][0]+TAILLEREC*vectdir[0],self._snakecor[-1][1]+TAILLEREC*vectdir[1]))
+        self._snakecor.pop(0)
+    
+    
+
+    
+    
+
 #fonction contenant la boucle principale
 def main():
     #Démarrage de la partie
@@ -83,11 +128,13 @@ def main():
     screen = pg.display.set_mode( (SCREENWIDTH, SCREENHEIGHT) )  #Création du quadrillage
     screen.fill( COLORS )
 
-    snakecor=[]  #Création du snake
+    snakecorinit=[]  #Création du snake
     for i in range(SNAKELEN):
-        snakecor.append((4*TAILLEREC+i*TAILLEREC,10*TAILLEREC))
+        snakecorinit.append((4*TAILLEREC+i*TAILLEREC,10*TAILLEREC))
+    
+    snakecor=Snake(snakecorinit)
 
-    fruit=(3*TAILLEREC,3*TAILLEREC)  #Création du fruit
+    fruit=Fruit(3*TAILLEREC,3*TAILLEREC)  #Création du fruit
 
 #Lancement de la boucle de jeu
     while Flag==True:
@@ -126,7 +173,7 @@ def process_events(logger,vectdir,Flag):
     return vectdir,Flag
 
 #Fonction de Mise à jour du serpent
-def move_snake(snakecor,TAILLEREC,vectdir):
+#def move_snake(snakecor,TAILLEREC,vectdir):
     snakecor.append((snakecor[-1][0]+TAILLEREC*vectdir[0],snakecor[-1][1]+TAILLEREC*vectdir[1]))
     snakecor.pop(0)
 
@@ -137,21 +184,6 @@ def get_score(testfruit,score):
         testfruit=False 
     pg.display.set_caption("Score: "+str(score))
     return score
-
-#Fonction de mise à jour du jeu si le serpent touche le fruit
-def update_fruit(snakecor,fruit,score,TAILLEREC,testfruit,logger):
-    if snakecor[-1]==fruit:
-        testfruit=True
-        pg.display.set_caption("Score: "+str(score))
-        if fruit==(3*TAILLEREC,3*TAILLEREC):
-            fruit=(15*TAILLEREC,10*TAILLEREC)
-            snakecor=[snakecor[0]]+snakecor
-        else:
-            fruit=(3*TAILLEREC,3*TAILLEREC)
-            snakecor=[snakecor[0]]+snakecor
-        logger.info('Your score is '+str(score))
-        logger.debug('Snake has eaten a fruit')
-    return testfruit,fruit,snakecor
 
      
 #Fonction de détection des chocs
@@ -212,10 +244,6 @@ def draw_checkerboard(screen,COLORS,SCREENWIDTH,SCREENHEIGHT,TAILLEREC,BLACK):
             rect = pg.Rect(left,top,TAILLEREC, TAILLEREC)
             pg.draw.rect(screen, BLACK, rect)
 
-#Fonction de dessin du fruit
-def draw_fruit(fruit,TAILLEREC,screen,RED):
-    fruitrec = pg.Rect(fruit[0],fruit[1],TAILLEREC, TAILLEREC)
-    pg.draw.rect(screen,RED, fruitrec)
 
 #Fonction de dessin du snake
 def draw_snake(snakecor,TAILLEREC,screen,GREEN):   
@@ -227,17 +255,17 @@ def draw_snake(snakecor,TAILLEREC,screen,GREEN):
 #Fonction de dessin du jeu
 def draw(screen,COLORS,SCREENWIDTH,SCREENHEIGHT,TAILLEREC,BLACK,fruit,RED,snakecor,GREEN):
     draw_checkerboard(screen,COLORS,SCREENWIDTH,SCREENHEIGHT,TAILLEREC,BLACK)
-    draw_fruit(fruit,TAILLEREC,screen,RED)
+    fruit.draw(TAILLEREC,screen,RED)
     draw_snake(snakecor,TAILLEREC,screen,GREEN)
 
 #Fonction d'update après un passage dans la boucle
 def update_display(snakecor,TAILLEREC,vectdir,fruit,screen,COLORS,SCREENWIDTH,SCREENHEIGHT,BLACK,RED,GREEN,score,testfruit,args,logger,Flag):
-    move_snake(snakecor,TAILLEREC,vectdir)
-    testfruit,fruit,snakecor=update_fruit(snakecor,fruit,score,TAILLEREC,testfruit,logger)
-    draw(screen,COLORS,SCREENWIDTH,SCREENHEIGHT,TAILLEREC,BLACK,fruit,RED,snakecor,GREEN)
+    snakecor.move(TAILLEREC,vectdir)
+    testfruit,snakecor._snakecor=fruit.update(snakecor._snakecor,score,TAILLEREC,testfruit,logger)
+    draw(screen,COLORS,SCREENWIDTH,SCREENHEIGHT,TAILLEREC,BLACK,fruit,RED,snakecor._snakecor,GREEN)
     score=get_score(testfruit,score)
-    Flag=touchside(args,snakecor,SCREENWIDTH,SCREENHEIGHT,vectdir,TAILLEREC,testfruit,logger,Flag)
-    
+    Flag=touchside(args,snakecor._snakecor,SCREENWIDTH,SCREENHEIGHT,vectdir,TAILLEREC,testfruit,logger,Flag)
+
     return Flag,score,fruit,snakecor
 
 #Execution du programme
