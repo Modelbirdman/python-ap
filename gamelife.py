@@ -26,11 +26,11 @@ def nb_voisin_vivant(tab,i,j):
                         res=res+1
     return res 
 
-def draw_screen(TAILLECAR,tab,WHITE,BLACK):
+def draw_screen(TAILLECAR,tab,WHITE,BLACK,screen):
     screen.fill( WHITE )
-    for i in range(len(tab)):
-        for j in range(len(tab[0])):
-            if tab[i][j]==1:
+    for i in range(len(tab[0])):
+        for j in range(len(tab)):
+            if tab[j][i]==1:
                 carre = pg.Rect(i*TAILLECAR,j*TAILLECAR,TAILLECAR, TAILLECAR)
                 pg.draw.rect(screen, BLACK, carre)
 
@@ -48,9 +48,59 @@ def update_tab(tab):
                 if nb==3:
                     tab[i][j]=1
 
+def tab_init(f):
+    tab=[]
+    i=0
+    for line in f:
+        line=line.rstrip('\n')
+        tab.append([])
+        for nb in line:
+            tab[i].append(int(nb))
+        i=i+1
+    return tab
+
+def process_events(Flag):
+    for event in pg.event.get():
+            if event.type == pg.KEYDOWN: 
+                if event.key == pg.K_q:
+                    Flag=False
+            if event.type == pg.QUIT:
+                Flag=False
+    return Flag 
+
+def pygame_init():
+    pg.init()
+    clock = pg.time.Clock()
+    screen = pg.display.set_mode( (SCREENWIDTH, SCREENHEIGHT) )  #Création du quadrillage
+    screen.fill( WHITE )
+    Flag=True
+    return clock,screen,Flag
+
+def update_step(STEPS,tab):
+    step=0
+    while step<STEPS:
+        if step<STEPS:
+            update_tab(tab)
+            step=step+1
+    
+def writeend(tab,f):
+    for i in range(len(tab)):
+        for j in range(len(tab[0])):
+            f.write(str(tab[i][j]))
+        f.write('\n')
+
+def update_pygame(clock,FPS,Flag,TAILLECAR,WHITE,BLACK,screen):
+
+    clock.tick(FPS)
+    Flag=process_events(Flag)
+    draw_screen(TAILLECAR,tab,WHITE,BLACK,screen)
+    pg.display.update()
+
+    return Flag 
+
+
 
 args=read_args() 
-
 
 SCREENWIDTH=args.width
 SCREENHEIGHT=args.height
@@ -60,53 +110,25 @@ BLACK=(0,0,0)
 WHITE=(255,255,255)
 STEPS=args.m
 
-Flag=True
-step=0
 
 if args.d:
-    pg.init()
-    clock = pg.time.Clock()
-    screen = pg.display.set_mode( (SCREENWIDTH, SCREENHEIGHT) )  #Création du quadrillage
-    screen.fill( WHITE )
-
+    clock,screen,Flag=pygame_init()
     
 with open('gamelife.txt','r') as f:
-    tab=[]
-    i=0
-    for line in f:
-        line=line.rstrip('\n')
-        tab.append([])
-        for nb in line:
-            tab[i].append(int(nb))
-        i=i+1
+    tab=tab_init(f)
     
 if args.d:
     while Flag==True:
-        clock.tick(FPS)
 
         update_tab(tab)
 
-        for event in pg.event.get():
-            if event.type == pg.KEYDOWN: 
-                if event.key == pg.K_q:
-                    Flag=False
-            if event.type == pg.QUIT:
-                Flag=False
-
-        draw_screen(TAILLECAR,tab,WHITE,BLACK)
-        pg.display.update()
+        Flag=update_pygame(clock,FPS,Flag,TAILLECAR,WHITE,BLACK,screen)
 
 else:
-    while step<STEPS:
-        if step<STEPS:
-            update_tab(tab)
-            step=step+1
+    update_step(STEPS,tab)
     
 with open('gamsortie.txt','w') as f:
-    for i in range(len(tab)):
-        for j in range(len(tab[0])):
-            f.write(str(tab[i][j]))
-        f.write('\n')
+    writeend(tab,f)
 
 quit()
 
