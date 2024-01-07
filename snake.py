@@ -271,5 +271,3 @@ def update_display(snakecor,TAILLEREC,vectdir,fruit,screen,COLORS,SCREENWIDTH,SC
 #Execution du programme
 main()
 quit()
-
-
