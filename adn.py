@@ -82,4 +82,4 @@ def traitement(nomseq,nomvar,seq,var):
             score=score+haut
         else:
             depart.append((depart[-1][0]-1,depart[-1][1]-1))
-            score=score+diag
+
