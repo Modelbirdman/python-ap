@@ -3,7 +3,8 @@ import argparse
 import sys
 import logging 
 
-def read_args():
+#fonction de lecture des arguments entrés
+def read_args(): 
 
     parser = argparse.ArgumentParser(description='Arguements du jeu')
     parser.add_argument('--width', type=int, help="Longueur du quadrillage",default=800)
@@ -17,68 +18,29 @@ def read_args():
     args = parser.parse_args()
     return args
 
-def nb_voisin_vivant(tab,i,j):
-    res=0
-    for ligne in range(i-1,i+2):
+#permet de compter le nombre de voisins vivants d'une cellule
+def nb_voisin_vivant(tab,i,j): 
+    res=0 #contient le nombre de voisins à la fin de l'exécution
+    for ligne in range(i-1,i+2): 
         for colonne in range(j-1,j+2):
-            if 0<=ligne<len(tab) and 0<=colonne<len(tab[0]): 
+            if 0<=ligne<len(tab) and 0<=colonne<len(tab[0]): #permet de traiter les cas des cellules sur les extrémités 
                 if (ligne,colonne)!=(i,j):
-                    if tab[ligne][colonne]==1:
+                    if tab[ligne][colonne]==1: #si une cellule vivante est détectée en voisins
                         res=res+1
     return res 
 
-def draw_screen(TAILLECAR,tab,WHITE,BLACK,screen):
-    screen.fill( WHITE )
-    for i in range(len(tab[0])):
-        for j in range(len(tab)):
-            if tab[j][i]==1:
-                carre = pg.Rect(i*TAILLECAR,j*TAILLECAR,TAILLECAR, TAILLECAR)
-                pg.draw.rect(screen, BLACK, carre)
-
-
-def process_events(Flag):
-    for event in pg.event.get():
-            if event.type == pg.KEYDOWN: 
-                if event.key == pg.K_q:
-                    Flag=False
-            if event.type == pg.QUIT:
-                Flag=False
-    return Flag 
-
-def pygame_init(SCREENWIDTH,SCREENHEIGHT,WHITE):
-    pg.init()
-    clock = pg.time.Clock()
-    screen = pg.display.set_mode( (SCREENWIDTH, SCREENHEIGHT) )  #Création du quadrillage
-    screen.fill( WHITE )
-    Flag=True
-    return clock,screen,Flag
-    
-def writeend(tab,f):
+#fonction permettant l'écriture du motif final dans le fichier f
+def writeend(tab,f): 
     for i in range(len(tab)):
         for j in range(len(tab._tab[0])):
             f.write(str(tab._tab[i][j]))
-        f.write('\n')
+        f.write('\n') #pour aller à la ligne dans l'écriture 
 
-def draw(tab,TAILLECAR,WHITE,BLACK,screen):
-    screen.fill( WHITE )
-    for i in range(len(tab._tab[0])):
-        for j in range(len(tab)):
-            if tab._tab[j][i]==1:
-                carre = pg.Rect(i*TAILLECAR,j*TAILLECAR,TAILLECAR, TAILLECAR)
-                pg.draw.rect(screen, BLACK, carre)
+#classe du tableau de toutes les cellules du jeu
+class Tab: 
 
-def update_pygame(clock,FPS,Flag,TAILLECAR,WHITE,BLACK,screen,tab):
-
-    clock.tick(FPS)
-    Flag=process_events(Flag)
-    draw(tab,TAILLECAR,WHITE,BLACK,screen)
-    pg.display.update()
-
-    return Flag 
-
-class Tab:
-
-    def __init__(self, f):
+    #fonction de definition de ce tableau comme liste de liste
+    def __init__(self, f): 
         tab=[]
         i=0
         for line in f:
@@ -89,18 +51,16 @@ class Tab:
             i=i+1
         self._tab=tab
     
-    def __repr__(self):
-        return f"{self._tab}"
-    
-    def __len__(self):
+    #fonction longueur directement créée pour la classe tableau
+    def __len__(self): 
         return len(self._tab)
     
-    
-    def update_tab(self):
-        tabstock=self._tab.copy()
+    #fonction permettant de mettre un jour le tableau lors d'une étape
+    def update_tab(self):  
+        tabstock=self._tab.copy() #sert de base pour mettre à jour le tableau sans que ses premières modifications impactent les suivantes
         for i in range(len(self._tab)):
             for j in range(len(self._tab[0])):
-                nb=nb_voisin_vivant(tabstock,i,j)
+                nb=nb_voisin_vivant(tabstock,i,j) #on applique l'algorithme game of life en fonction du nombre de voisins vivants
                 if tabstock[i][j]==1:
                     if nb<2:
                         self._tab[i][j]=0
@@ -110,19 +70,56 @@ class Tab:
                     if nb==3:
                         self._tab[i][j]=1
 
-    def update_step(self,STEPS):
+    #fonction permettant d'appliquer la précédente sur un nombre précis d'étapes
+    def update_step(self,STEPS): 
         step=0
         while step<STEPS:
             if step<STEPS:
                 self.update_tab()
                 step=step+1
-     
-    
-    
-def main(): 
 
-    args=read_args() 
+#classe de l'utilisation de pygame
+class Display:
+    
+    #fonction de définition de ses attributs 
+    def __init__(self,SCREENWIDTH,SCREENHEIGHT,WHITE): 
+        pg.init()
+        self.clock = pg.time.Clock() #horloge du jeu 
+        self.screen = pg.display.set_mode( (SCREENWIDTH, SCREENHEIGHT) )  #quadrillage du jeu dont les dimensions sont entrées par le joueur 
+        self.screen.fill( WHITE )
+        self.Flag=True #variable permettant l'arrêt ou la suite du jeu
 
+    #fonction permettant de récupérer les commandes de l'utilisateur à chaque boucle
+    def process_events(self): 
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN: #s'il appuie sur Q la partie s'arrête
+                if event.key == pg.K_q: 
+                    self.Flag=False
+            if event.type == pg.QUIT: #s'il appuie sur la croix, la partie s'arrête
+                self.Flag=False 
+
+    #fonction permettant de dessiner l'état actuel du tableau de cellules
+    def draw(self,tab,TAILLECAR,WHITE,BLACK): 
+        self.screen.fill( WHITE ) #on repart de 0 pour redessiner le tableau
+        for i in range(len(tab._tab[0])):
+            for j in range(len(tab)):
+                if tab._tab[j][i]==1: #si la cellule est vivante
+                    carre = pg.Rect(i*TAILLECAR,j*TAILLECAR,TAILLECAR, TAILLECAR) #on la dessine avec les pas adaptés
+                    pg.draw.rect(self.screen, BLACK, carre)
+
+    #permet d'update le display après un passage dans la boucle
+    def update_pygame(self,FPS,TAILLECAR,WHITE,BLACK,tab): 
+
+        self.clock.tick(FPS) #l'horloge fonctionne au rythme de FPS entré par l'utilisateur
+        self.process_events() #on récupère les commandes de l'utilisateur pour éventuellement arrêter le jeu
+        self.draw(tab,TAILLECAR,WHITE,BLACK) #puis on dessine l'état actuel
+        pg.display.update() #et on l'update avec pygame
+
+def main(): #fonction principale contrôlant l'évolution du jeu
+
+    args=read_args() #récupération des arguments
+
+    #Definition des CONSTANTES a partir des arguments 
     SCREENWIDTH=args.width
     SCREENHEIGHT=args.height
     TAILLECAR=10
@@ -137,38 +134,38 @@ def main():
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
     logger.info('Pour jouer en mode debug, ajouter l argument -g--debug lors du lancement du jeu')
-    if args.g__debug:
+    if args.g__debug: #si le mode debug est activé
         logger.setLevel(logging.DEBUG)
 
-    if args.d:
+    if args.d: #si le mode affichage est activé 
         logger.info('Le mode affichage est active')
         logger.debug('Lancement de pygame')
-        clock,screen,Flag=pygame_init(SCREENWIDTH,SCREENHEIGHT,WHITE)
+        play=Display(SCREENWIDTH,SCREENHEIGHT,WHITE)
     
-    with open('gamelife.txt','r') as f:
+    with open('gamelife.txt','r') as f: #on ouvre le fichier d'entrée et on récupère ses données
         logger.info('Ouverture du fichier gamelife.txt et recuperation des donnees')
         logger.debug('Lecture du fichier et recuperation des donnees')
-        tab=Tab(f)
+        tab=Tab(f) #ses données sont placés dans tab
     
-    if args.d:
+    if args.d: #en mode affichage 
         logger.info('Affichage de l evolution des cellules. Presser Q ou la croix pour quitter')
         logger.debug('Debut de la boucle d affichage de l evolution des cellules')
-        while Flag==True:
+        while play.Flag==True: #on exécute un nombre infini d'étapes jusqu'à que l'utilisateur ordonne d'arrêter 
 
-            tab.update_tab()
-            Flag=update_pygame(clock,FPS,Flag,TAILLECAR,WHITE,BLACK,screen,tab)
+            tab.update_tab() #on met à jour le tableau
+            play.update_pygame(FPS,TAILLECAR,WHITE,BLACK,tab) #et on met à jour pygame
 
-    else:
-        logger.info('Simulation de l evolution des cellules sur ' + str(STEPS) + ' etapes')
+    else: #sans mode affichage
+        logger.info('Simulation de l evolution des cellules sur ' + str(STEPS) + ' etapes') 
         logger.debug('Debut de la simulation de l evolution des cellules')
-        tab.update_step(STEPS)
+        tab.update_step(STEPS) #on réalise un nombre fini d'étapes 
 
     logger.debug('Fin de l evolution des cellules') 
 
-    with open('gamsortie.txt','w') as f:
+    with open('gamsortie.txt','w') as f: #on ouvre le fichier de sortie 
         logger.info('Ecriture du motif final dans le fichier gamesortie.txt')
         logger.debug('Ecriture dans le fichier de sortie du motif final ')
-        writeend(tab,f)
+        writeend(tab,f) #et on y écrit le tableau final retenu 
     
     logger.info('Execution du programme terminee')
     logger.debug('Fin du programme')
