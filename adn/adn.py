@@ -51,28 +51,28 @@ if __name__ == "__main__":
 
 
 
-def tableau(seq,var):
+def remplir_tableau(seq,var,matchscore,mismatchscore,indelscore):
     tableau=[[(0,(0,0)) for j in range(len(seq))] for i in range(len(var))]
     for i in range(1,len(seq)):
-        tableau[0][i]=(-i,((0,i-1)))
+        tableau[0][i]=(-i*indelscore,((0,i-1)))
     for j in range(1,len(var)):
-        tableau[j][0]=(-j,(j-1,0))
+        tableau[j][0]=(-j*indelscore,(j-1,0))
     for j in range(1,len(var)):
         for i in range(1,len(seq)):
             #gauche=addition et bas=suppression
-            insert=tableau[j][i-1][0]-2
-            delete=tableau[j-1][i][0]-2
+            insert=tableau[j][i-1][0]-indelscore
+            delete=tableau[j-1][i][0]-indelscore
             if re.match(seq[i],seq[j]):
-                sub=tableau[j-1][i-1][0]+1
+                sub=tableau[j-1][i-1][0]+matchscore
                 print(sub)
             else:
-                sub=tableau[j-1][i-1][0]-1
+                sub=tableau[j-1][i-1][0]-mismatchscore
             if max(insert,delete,sub)==sub:
-                tableau[j][i]==(sub,(j-1,i-1))
+                tableau[j][i]=(sub,(j-1,i-1))
             elif max(insert,delete,sub)==insert:
-                tableau[j][i]==(insert,(j,i-1))
+                tableau[j][i]=(insert,(j,i-1))
             else:
-                tableau[j][i]==(delete,(j-1,i))
+                tableau[j][i]=(delete,(j-1,i))
     return tableau 
                 
  #def cheminopti(tableau,var,seq,nomseq,nomvar):   

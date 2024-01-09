@@ -1,8 +1,13 @@
 import pytest 
 import adn
 
-print(adn.tableau("AT","AG"))
+#PYTHONPATH=.. python -m pytest nom du fichier ou . (répertoire courant)
+#python 
+
+print(adn.remplir_tableau("ATA","AA"))
 
 def test_tableau():
-    return None 
+    assert adn.remplir_tableau("AT","AG",1,1,2)==[[(0, (0, 0)), (-1, (0, 0))], [(-1, (0, 0)), (1, (0, 0))]]
+    assert adn.remplir_tableau("ATA","AA",1,1,2)==[[(0, (0, 0)), (-1, (0, 0)), (-2, (0, 1))], [(-1, (0, 0)), (1, (0, 0)), (-1, (1, 1))]]
+    
 
