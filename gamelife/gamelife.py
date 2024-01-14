@@ -4,11 +4,6 @@ import sys
 import logging 
 from pathlib import Path
 
-dot = Path.cwd()
-tmp = Path(dot/"gamelife.txt")
-print(tmp)
-
-
 #fonction de lecture des arguments entrés
 def read_args(): 
 
@@ -17,6 +12,8 @@ def read_args():
     parser.add_argument('--height', type=int, help="Hauteur du quadrillage",default=600)
     parser.add_argument('-f', type=int, help="Nombre de frames par seconde",default=10)
     parser.add_argument('-m', type=int, help="Nombre d'étapes de la simulation",default=20)
+    parser.add_argument('-i', type=str, help="Fichier d'entrée")
+    parser.add_argument('-o', type=str, help="Fichier de sortie")
 
     parser.add_argument('-d', help='Affichage de pygame', action='store_true')
     parser.add_argument('-g--debug',help='Debug mode', action='store_true')
@@ -124,6 +121,8 @@ class Display:
 def main(): #fonction principale contrôlant l'évolution du jeu
 
     args=read_args() #récupération des arguments
+    pathi = Path(args.i) #récupération du chemin d'accès du fichier d'entrée
+    patho = Path(args.o) #récupération du chemin d'accès du fichier d'entrée
     
 
     #Definition des CONSTANTES a partir des arguments 
@@ -141,6 +140,7 @@ def main(): #fonction principale contrôlant l'évolution du jeu
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
     logger.info('Pour jouer en mode debug, ajouter l argument -g--debug lors du lancement du jeu')
+    logger.info('Le chemin d acces doit etre precise entre ""')
     if args.g__debug: #si le mode debug est activé
         logger.setLevel(logging.DEBUG)
 
@@ -149,7 +149,7 @@ def main(): #fonction principale contrôlant l'évolution du jeu
         logger.debug('Lancement de pygame')
         play=Display(SCREENWIDTH,SCREENHEIGHT,WHITE)
     
-    with open("gamelife.txt",'r') as f: #on ouvre le fichier d'entrée et on récupère ses données
+    with open(pathi,'r') as f: #on ouvre le fichier d'entrée et on récupère ses données
         logger.info('Ouverture du fichier gamelife.txt et recuperation des donnees')
         logger.debug('Lecture du fichier et recuperation des donnees')
         tab=Tab(f) #ses données sont placés dans tab
@@ -169,7 +169,7 @@ def main(): #fonction principale contrôlant l'évolution du jeu
 
     logger.debug('Fin de l evolution des cellules') 
 
-    with open('gamsortie.txt','w') as f: #on ouvre le fichier de sortie 
+    with open(patho,'w') as f: #on ouvre le fichier de sortie 
         logger.info('Ecriture du motif final dans le fichier gamesortie.txt')
         logger.debug('Ecriture dans le fichier de sortie du motif final ')
         writeend(tab,f) #et on y écrit le tableau final retenu 
@@ -180,6 +180,3 @@ def main(): #fonction principale contrôlant l'évolution du jeu
 if __name__ == "__main__": 
     main()
     quit()
-
-#tab=[[0,1,0],[0,0,0],[1,0,1]]
-#print(nb_voisin_vivant(tab,2,2))
