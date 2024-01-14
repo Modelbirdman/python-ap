@@ -4,6 +4,7 @@ import sys
 import logging 
 from pathlib import Path
 
+
 #fonction de lecture des arguments entrés
 def read_args(): 
 
