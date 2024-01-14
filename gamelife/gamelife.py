@@ -2,6 +2,12 @@ import pygame as pg
 import argparse
 import sys
 import logging 
+from pathlib import Path
+
+dot = Path.cwd()
+tmp = Path(dot/"gamelife.txt")
+print(tmp)
+
 
 #fonction de lecture des arguments entrés
 def read_args(): 
@@ -118,6 +124,7 @@ class Display:
 def main(): #fonction principale contrôlant l'évolution du jeu
 
     args=read_args() #récupération des arguments
+    
 
     #Definition des CONSTANTES a partir des arguments 
     SCREENWIDTH=args.width
@@ -142,7 +149,7 @@ def main(): #fonction principale contrôlant l'évolution du jeu
         logger.debug('Lancement de pygame')
         play=Display(SCREENWIDTH,SCREENHEIGHT,WHITE)
     
-    with open('gamelife.txt','r') as f: #on ouvre le fichier d'entrée et on récupère ses données
+    with open("gamelife.txt",'r') as f: #on ouvre le fichier d'entrée et on récupère ses données
         logger.info('Ouverture du fichier gamelife.txt et recuperation des donnees')
         logger.debug('Lecture du fichier et recuperation des donnees')
         tab=Tab(f) #ses données sont placés dans tab
