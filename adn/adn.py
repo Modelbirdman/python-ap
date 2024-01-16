@@ -45,29 +45,37 @@ if __name__ == "__main__":
                     logger.info("variant detecte")
             else:
                 raise ValueError('la ligne non reconnue est '+str(i))
-    if seq!="" and var!="":
-        print(seq)
-        print(var)
+        if seq!="" and var!="":
+            print(seq)
+            print(var)
 
 
 
-def traitement(nomseq,nomvar,seq,var):
-    tableau=[[0 for j in range(len(seq))] for i in range(len(var))]
-    for i in range(len(seq)):
-        tableau[0][i]=-i
-    for j in range(len(var)):
-        tableau[j][0]=-i
+def remplir_tableau(seq,var,matchscore,mismatchscore,indelscore):
+    tableau=[[(0,(0,0)) for j in range(len(seq))] for i in range(len(var))]
+    for i in range(1,len(seq)):
+        tableau[0][i]=(-i*indelscore,((0,i-1)))
+    for j in range(1,len(var)):
+        tableau[j][0]=(-j*indelscore,(j-1,0))
     for j in range(1,len(var)):
         for i in range(1,len(seq)):
             #gauche=addition et bas=suppression
-            insert=tableau[j][i-1]-2
-            delete=tableau[j-1][i]-2
-            if re.mathc(seq[i],seq[j]):
-                sub=tableau[j-1][i-1]+1
+            insert=tableau[j][i-1][0]-indelscore
+            delete=tableau[j-1][i][0]-indelscore
+            if re.match(seq[i],seq[j]):
+                sub=tableau[j-1][i-1][0]+matchscore
+                print(sub)
             else:
-                sub=tableau[j-1][i-1]-1
-            tableau[j,i]=max(insert,delete,sub)
-    
+                sub=tableau[j-1][i-1][0]-mismatchscore
+            if max(insert,delete,sub)==sub:
+                tableau[j][i]=(sub,(j-1,i-1))
+            elif max(insert,delete,sub)==insert:
+                tableau[j][i]=(insert,(j,i-1))
+            else:
+                tableau[j][i]=(delete,(j-1,i))
+    return tableau 
+                
+ #def cheminopti(tableau,var,seq,nomseq,nomvar):   
     depart=[(len(var)-1,len(seq)-1)]
     score=tableau[len(var)-1][len(seq)-1]
     while depart[-1]!=(0,0):
