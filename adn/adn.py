@@ -75,7 +75,7 @@ def remplir_tableau(seq,var,matchscore,mismatchscore,indelscore):
                 tableau[j][i]=(delete,(j-1,i))
     return tableau 
                 
- #def cheminopti(tableau,var,seq,nomseq,nomvar):   
+ def cheminopti(tableau):   
     depart=[(len(var)-1,len(seq)-1)]
     score=tableau[len(var)-1][len(seq)-1]
     while depart[-1]!=(0,0):
@@ -90,4 +90,5 @@ def remplir_tableau(seq,var,matchscore,mismatchscore,indelscore):
             score=score+haut
         else:
             depart.append((depart[-1][0]-1,depart[-1][1]-1))
+    return reversed(depart)
 
